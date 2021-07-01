@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routers import contestRouter
+from fastapi_restful.tasks import repeat_every
+from routers import contestRouter, runsRouter
 from globalVars import global_vars
 
 def init_vars():
@@ -12,7 +13,8 @@ def init_vars():
         data = fp.readlines()
     for run in data:
         [uid, t, tid, quest, acc] = run.split(chr(FILE_SEPARATOR))
-        global_vars.runs.append({"uid": uid, "time": t, "teamId": tid, "question": quest, "acc": acc[0]})
+        global_vars.total_runs.append({"uid": int(uid), "time": int(t), "teamId": tid, "question": quest, "acc": acc[0]})
+    global_vars.total_runs.reverse()
     with open(CONTEST, 'r') as fp:
         global_vars.contest["name"]= fp.readline()[:-1]
         [duration, frozen, blind, penality] = fp.readline().split(chr(FILE_SEPARATOR))
@@ -43,3 +45,14 @@ app.add_middleware(
 )
 
 app.include_router(contestRouter.router)
+app.include_router(runsRouter.router)
+
+@app.on_event("startup")
+@repeat_every(seconds=1, wait_first=True)
+def periodic():
+    global_vars.t += 1
+    # print(len(global_vars.total_runs))
+    for index, run in enumerate(len(global_vars.total_runs)):
+        if(run.time > global_vars.t):
+            print(global_vars.total_runs[:index])
+            break
