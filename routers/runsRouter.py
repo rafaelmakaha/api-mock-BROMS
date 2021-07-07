@@ -10,12 +10,12 @@ router = APIRouter(
 
 @router.get("/", tags=["runs"])
 async def get_runs():
-    return global_vars.total_runs
+    return global_vars.runs
 
 @router.post("/diff", tags=["runs"])
 async def get_diff_runs(request: Request):
     uid = await request.json()
-    uid = uid["uid"]
+    uid = uid["runId"]
     for index,run in enumerate(global_vars.runs):
         if run["uid"] == uid:
             i = index

@@ -13,7 +13,7 @@ def init_vars():
         data = fp.readlines()
     for run in data:
         [uid, t, tid, quest, acc] = run.split(chr(FILE_SEPARATOR))
-        global_vars.total_runs.append({"uid": int(uid), "time": int(t), "teamId": tid, "question": quest, "acc": acc[0]})
+        global_vars.total_runs.append({"runId": int(uid), "time": int(t), "teamUid": tid, "problem": quest, "verdict": acc[0]})
     global_vars.total_runs.reverse()
     with open(CONTEST, 'r') as fp:
         global_vars.contest["name"]= fp.readline()[:-1]
@@ -51,8 +51,9 @@ app.include_router(runsRouter.router)
 @repeat_every(seconds=1, wait_first=True)
 def periodic():
     global_vars.t += 1
-    # print(len(global_vars.total_runs))
-    for index, run in enumerate(len(global_vars.total_runs)):
-        if(run.time > global_vars.t):
-            print(global_vars.total_runs[:index])
+    print(global_vars.t, len(global_vars.runs))
+    for index, run in enumerate(global_vars.total_runs):
+        if(run['time'] > global_vars.t):
+            global_vars.runs =  [*global_vars.total_runs[:index]]
             break
+        
