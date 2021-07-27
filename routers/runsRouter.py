@@ -15,12 +15,12 @@ async def get_runs():
 @router.post("/diff", tags=["runs"])
 async def get_diff_runs(request: Request):
     uid = await request.json()
-    uid = uid["runId"]
+    i = 0
     for index,run in enumerate(global_vars.runs):
-        if run["uid"] == uid:
+        if run["runId"] == uid:
             i = index
             break
-    if index > 0:
+    if i > 0:
         return global_vars.runs[i:]
     return []
     

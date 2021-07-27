@@ -13,6 +13,8 @@ router = APIRouter(
 async def get_contest():
     return global_vars.contest
 
-@router.get("/x", tags=["contest"])
+@router.get("/finish", tags=["contest"])
 async def get_contest():
-    return global_vars.runs
+    if global_vars.t > global_vars.contest["duration"]:
+        return True
+    return False

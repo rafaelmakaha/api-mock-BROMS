@@ -26,7 +26,7 @@ def init_vars():
         global_vars.contest["n_teams"] = int(n_teams)
         global_vars.contest["n_questions"] = int(n_quest[:-1])
         teams = []
-        for i in range(int(n_teams)-1):
+        for i in range(int(n_teams)):
             [tid, college, name] = fp.readline().split(chr(FILE_SEPARATOR))
             team = {"teamId": tid, "college": college, "name": name[:-1]}
             teams.append((team))
@@ -39,7 +39,7 @@ app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_credentials=True,
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -48,7 +48,7 @@ app.include_router(contestRouter.router)
 app.include_router(runsRouter.router)
 
 @app.on_event("startup")
-@repeat_every(seconds=1, wait_first=True)
+@repeat_every(seconds=1, wait_first=True, max_repetitions=global_vars.contest["duration"])
 def periodic():
     global_vars.t += 1
     print(global_vars.t, len(global_vars.runs))
