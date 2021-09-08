@@ -21,6 +21,6 @@ async def get_diff_runs(request: Request):
             i = index
             break
     if i > 0:
-        return global_vars.runs[i:]
+        return global_vars.runs[i+1:]
     return []
     

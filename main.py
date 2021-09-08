@@ -17,11 +17,11 @@ def init_vars():
     global_vars.total_runs.reverse()
     with open(CONTEST, 'r') as fp:
         global_vars.contest["name"]= fp.readline()[:-1]
-        [duration, frozen, blind, penality] = fp.readline().split(chr(FILE_SEPARATOR))
+        [duration, frozen, blind, penalty] = fp.readline().split(chr(FILE_SEPARATOR))
         global_vars.contest["duration"] = int(duration)
         global_vars.contest["frozen"] = int(frozen)
         global_vars.contest["blind"] = int(blind)
-        global_vars.contest["penality"] = int(penality[:-1])
+        global_vars.contest["penalty"] = int(penalty[:-1])
         [n_teams, n_quest] = fp.readline().split(chr(FILE_SEPARATOR))
         global_vars.contest["n_teams"] = int(n_teams)
         global_vars.contest["n_questions"] = int(n_quest[:-1])
@@ -48,12 +48,13 @@ app.include_router(contestRouter.router)
 app.include_router(runsRouter.router)
 
 @app.on_event("startup")
-@repeat_every(seconds=1, wait_first=True, max_repetitions=global_vars.contest["duration"])
+@repeat_every(seconds=1, wait_first=True, max_repetitions=global_vars.contest["duration"]/10)
 def periodic():
-    global_vars.t += 1
+    global_vars.t += 10
     print(global_vars.t, len(global_vars.runs))
     for index, run in enumerate(global_vars.total_runs):
         if(run['time'] > global_vars.t):
-            global_vars.runs =  [*global_vars.total_runs[:index]]
-            break
+            global_vars.runs =  global_vars.total_runs[:index]
+            return
         
+    global_vars.runs = global_vars.total_runs

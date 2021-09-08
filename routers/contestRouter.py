@@ -15,6 +15,6 @@ async def get_contest():
 
 @router.get("/finish", tags=["contest"])
 async def get_contest():
-    if global_vars.t > global_vars.contest["duration"]:
+    if global_vars.t >= global_vars.contest["duration"]:
         return True
     return False
