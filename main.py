@@ -3,6 +3,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi_restful.tasks import repeat_every
 from routers import contestRouter, runsRouter
 from globalVars import global_vars
+from BocaClient import update_files
+
+
+REQUEST_TIME_S = 15
 
 def init_vars():
     CONTEST = './data/contest'
@@ -32,6 +36,7 @@ def init_vars():
             teams.append((team))
         global_vars.contest["teams"] = teams
 
+update_files()
 init_vars()
 
 app = FastAPI()
@@ -47,14 +52,43 @@ app.add_middleware(
 app.include_router(contestRouter.router)
 app.include_router(runsRouter.router)
 
-@app.on_event("startup")
-@repeat_every(seconds=1, wait_first=True, max_repetitions=global_vars.contest["duration"]/10)
-def periodic():
-    global_vars.t += 10
-    print(global_vars.t, len(global_vars.runs))
-    for index, run in enumerate(global_vars.total_runs):
-        if(run['time'] > global_vars.t):
-            global_vars.runs =  global_vars.total_runs[:index]
-            return
+# @app.on_event("startup")
+# @repeat_every(seconds=1, wait_first=True, max_repetitions=global_vars.contest["duration"]/10)
+# def periodic():
+#     global_vars.t += 10
+#     print(global_vars.t, len(global_vars.runs))
+#     for index, run in enumerate(global_vars.total_runs):
+#         if(run['time'] > global_vars.t):
+#             global_vars.runs =  global_vars.total_runs[:index]
+#             return
         
-    global_vars.runs = global_vars.total_runs
+#     global_vars.runs = global_vars.total_runs
+
+@app.on_event("startup")
+@repeat_every(seconds=REQUEST_TIME_S, wait_first=True, max_repetitions=global_vars.contest["duration"]/(REQUEST_TIME_S/60)+1)
+def periodic():
+    global_vars.total_runs = []
+    global_vars.t += REQUEST_TIME_S/60
+    print(global_vars.t, len(global_vars.runs))
+
+    update_files()
+    RUNS = './data/runs'
+    FILE_SEPARATOR = 28
+    data = []
+    with open(RUNS, 'r') as fp:
+        data = fp.readlines()
+    for run in data:
+        [uid, t, tid, quest, acc] = run.split(chr(FILE_SEPARATOR))
+        global_vars.total_runs.append({"runId": int(uid), "time": int(t), "teamUid": tid, "problem": quest, "verdict": acc[0]})
+    global_vars.total_runs.reverse()
+
+    for index, run in enumerate(global_vars.total_runs):
+        print(global_vars.last_judged, run['runId'])
+        if run['verdict'] == '?':
+            print('1', run['verdict'])
+            break
+        if run['runId'] > global_vars.last_judged:
+            print('2')
+            print(global_vars.last_judged, run['runId'])
+            global_vars.runs.append(run)
+            global_vars.last_judged = run['runId']
