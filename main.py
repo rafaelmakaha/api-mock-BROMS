@@ -3,6 +3,14 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi_restful.tasks import repeat_every
 from routers import contestRouter, runsRouter
 from globalVars import global_vars
+from enum import Enum
+import time
+
+class DATA_ACESS_POS(Enum):
+    TID = 0
+    COLLEGE = 1
+    NAME = 2
+    REGION = 3
 
 def init_vars():
     CONTEST = './data/contest'
@@ -27,8 +35,17 @@ def init_vars():
         global_vars.contest["n_questions"] = int(n_quest[:-1])
         teams = []
         for i in range(int(n_teams)):
-            [tid, college, name] = fp.readline().split(chr(FILE_SEPARATOR))
-            team = {"teamId": tid, "college": college, "name": name[:-1]}
+            arr_team = fp.readline()[:-1].split(chr(FILE_SEPARATOR))
+            # [tid, region, college, name] = fp.readline().split(chr(FILE_SEPARATOR))
+            
+            team = {
+                "teamId": arr_team[DATA_ACESS_POS.TID.value], 
+                "college": arr_team[DATA_ACESS_POS.COLLEGE.value], 
+                "name": arr_team[DATA_ACESS_POS.NAME.value]
+            }
+            if(len(arr_team) > 3):
+                team["region"] = arr_team[DATA_ACESS_POS.REGION.value]
+
             teams.append((team))
         global_vars.contest["teams"] = teams
 
