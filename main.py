@@ -69,7 +69,6 @@ app.include_router(runsRouter.router)
 def periodic():
     global_vars.total_runs = []
     global_vars.t += REQUEST_TIME_S/60
-    print(global_vars.t, len(global_vars.runs))
 
     update_files()
     RUNS = './data/runs'
@@ -83,12 +82,8 @@ def periodic():
     global_vars.total_runs.reverse()
 
     for index, run in enumerate(global_vars.total_runs):
-        print(global_vars.last_judged, run['runId'])
         if run['verdict'] == '?':
-            print('1', run['verdict'])
-            break
-        if run['runId'] > global_vars.last_judged:
-            print('2')
-            print(global_vars.last_judged, run['runId'])
-            global_vars.runs.append(run)
-            global_vars.last_judged = run['runId']
+            global_vars.runs = global_vars.total_runs[:index]
+            return
+    
+    global_vars.runs = global_vars.total_runs
