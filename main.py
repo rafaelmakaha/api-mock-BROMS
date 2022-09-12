@@ -4,6 +4,7 @@ from fastapi_restful.tasks import repeat_every
 from routers import contestRouter, runsRouter
 from globalVars import global_vars
 from BocaClient import update_files
+from html import unescape
 
 
 REQUEST_TIME_S = 15
@@ -32,7 +33,7 @@ def init_vars():
         teams = []
         for i in range(int(n_teams)):
             [tid, college, name] = fp.readline().split(chr(FILE_SEPARATOR))
-            team = {"teamId": tid, "college": college, "name": name[:-1]}
+            team = {"teamId": tid, "college": college, "name": unescape(name[:-1])}
             teams.append((team))
         global_vars.contest["teams"] = teams
 
